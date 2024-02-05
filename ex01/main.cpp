@@ -2,9 +2,21 @@
 
 int main(int argc, char **argv)
 {
-	std::cout << "\n<<< Test >>>" << std::endl;
+	if (argc != 2)
 	{
+		std::cerr << "Invalid arg" << std::endl;
+		return 1;
 	}
-	std::cout << std::endl;	
+	std::string rpnExpression = argv[1];
+	try
+	{
+		int result = RPN::calculateRPN(rpnExpression);
+		std::cout << result << std::endl;
+	}
+	catch (std::exception const& e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
+		return 1;
+	}
 	return 0;
 }
