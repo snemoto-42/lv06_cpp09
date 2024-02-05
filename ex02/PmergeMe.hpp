@@ -22,7 +22,4 @@ class PmergeMe
 		static void mergeInsertionSortHelper(std::vector<int> &, std::vector<int> &, int, int, int);
 		static void insertionSortRange(std::vector<int> &, int, int);
 		static void merge(std::vector<int> &, std::vector<int> &, int, int, int);
-
-		// static void mergeSort(std::vector<int> &, std::vector<int> &, int, int);
-		// static void insertionSort(std::vector<int> &);
 };

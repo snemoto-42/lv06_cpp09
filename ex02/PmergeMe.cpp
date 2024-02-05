@@ -11,14 +11,10 @@ void PmergeMe::processSequence(int size, char** sequence)
 		originalSequence.push_back(std::atoi(token.c_str()));
 	}
 	displaySequence("Before: ", originalSequence);
-
-	std::vector<int> sequenceCopy(originalSequence);
-	
 	clock_t start, end;
-
 	start = std::clock();
-	std::vector<int> tmp(originalSequence.size());
-	mergeInsertionSort(originalSequence, 20); //thresholdの値は要調整
+	int threshold = 20; //threshold以下の部分配列に対して挿入ソートが適用
+	mergeInsertionSort(originalSequence, threshold);
 	end = std::clock();
 	displaySequence("After: ", originalSequence);
 	std::ostringstream oss;
@@ -97,30 +93,3 @@ void PmergeMe::merge(std::vector<int> & sequence, std::vector<int> & tmp, int le
 	for (int l = left; l <= right; ++l)
 		sequence[l] = tmp[l];
 }
-
-// void PmergeMe::mergeSort(std::vector<int> & sequence, std::vector<int> & tmp, int left, int right)
-// {
-// 	if (left < right)
-// 	{
-// 		int mid = (left + right) / 2;
-// 		mergeSort(sequence, tmp, left, mid);
-// 		mergeSort(sequence, tmp, mid + 1, right);
-// 		merge(sequence, tmp, left, mid, right);
-// 	}
-// }
-
-// void PmergeMe::insertionSort(std::vector<int> & sequence)
-// {
-// 	int n = sequence.size();
-// 	for (int i = 1; i < n; ++i)
-// 	{
-// 		int key = sequence[i];
-// 		int j = i - 1;
-// 		while (j >= 0 && sequence[j] > key)
-// 		{
-// 			sequence[j + 1] = sequence[j];
-// 			--j;
-// 		}
-// 		sequence[j + 1] = key;
-// 	}
-// }
