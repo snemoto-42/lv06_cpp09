@@ -7,21 +7,21 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <vector>
+#include <map>
 
-struct BitcoinData
-{
-	std::string date;
-	double value;
-};
+// struct BitcoinData
+// {
+// 	std::string date;
+// 	double value;
+// };
 
 class CompareDates
 {
 	public:
 		explicit CompareDates(int targetDateTime): _targetDateTime(targetDateTime){}
-		bool operator()(BitcoinData const& a, BitcoinData const& b) const
+		bool operator()(std::pair<std::string, double> const& a, std::pair<std::string, double> const& b) const
 		{
-			return std::abs(std::atoi(a.date.c_str()) - _targetDateTime) < std::abs(std::atoi(b.date.c_str()) - _targetDateTime);
+			return std::abs(std::atoi(a.first.c_str()) - _targetDateTime) < std::abs(std::atoi(b.first.c_str()) - _targetDateTime);
 		}
 	private:
 		int _targetDateTime;
@@ -35,7 +35,7 @@ class BitcoinExchange
 		BitcoinExchange(BitcoinExchange const&);
 		BitcoinExchange & operator=(BitcoinExchange const&);
 
-		std::vector<BitcoinData> readBitcoinPrices(void);
+		std::map<std::string, double> readBitcoinPrices(void);
 		std::string findClosestDate(std::string const&);	
 
 	private:

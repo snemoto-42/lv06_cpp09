@@ -30,9 +30,9 @@ BitcoinExchange & BitcoinExchange::operator=(BitcoinExchange const& other)
 	return (*this);		
 }
 
-std::vector<BitcoinData> BitcoinExchange::readBitcoinPrices(void)
+std::map<std::string, double> BitcoinExchange::readBitcoinPrices(void)
 {
-	std::vector<BitcoinData> bitcoinPrices;
+	std::map<std::string, double> bitcoinPrices;
 	std::ifstream file(_bitcoinPricesFilename.c_str());
 	if (!file.is_open())
 	{
@@ -50,11 +50,9 @@ std::vector<BitcoinData> BitcoinExchange::readBitcoinPrices(void)
 		iss >> dateStr >> valueStr;
 		try
 		{
-			bitcoinPrices.push_back(BitcoinData());
-			bitcoinPrices.back().date = dateStr;
-			bitcoinPrices.back().value = std::atof(valueStr.c_str());
+			bitcoinPrices.insert(std::make_pair(dateStr, std::atof(valueStr.c_str())));
 		}
-		catch (std::invalid_argument const&)
+		catch (std::invalid_argument const& e)
 		{
 			std::cerr << "Error: Invalid value in the Bitcoin prices database." << std::endl;
 			std::exit(1);
@@ -66,8 +64,8 @@ std::vector<BitcoinData> BitcoinExchange::readBitcoinPrices(void)
 std::string BitcoinExchange::findClosestDate(std::string const& targetDate)
 {
 	int targetDateTime = std::atoi(targetDate.c_str());
-	std::vector<BitcoinData> bitcoinPrices = readBitcoinPrices();
+	std::map<std::string, double> bitcoinPrices = readBitcoinPrices();
 	CompareDates compare(targetDateTime);
-	std::vector<BitcoinData>::iterator closestDate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
-	return closestDate->date;
+	std::map<std::string, double>::iterator closestDate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
+	return closestDate->first;
 }

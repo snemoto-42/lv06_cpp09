@@ -30,13 +30,13 @@ int main(int argc, char **argv)
 	try
 	{
 		std::string closestDate = exchange.findClosestDate(dateStr);
-		std::vector<BitcoinData> bitcoinPrices = exchange.readBitcoinPrices();
+		std::map<std::string, double> bitcoinPrices = exchange.readBitcoinPrices();
 		CompareDates compare(std::atoi(closestDate.c_str()));
-		std::vector<BitcoinData>::iterator exchangeRate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
+		std::map<std::string, double>::iterator exchangeRate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
 
 		if (exchangeRate != bitcoinPrices.end())
 		{
-			double result = std::atof(valueStr.c_str()) * exchangeRate->value;
+			double result = std::atof(valueStr.c_str()) * exchangeRate->second;
 			std::cout << " => " << valueStr << " = " << std::fixed << std::setprecision(2) << result << std::endl;
 		}
 		else
