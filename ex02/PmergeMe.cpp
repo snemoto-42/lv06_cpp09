@@ -2,32 +2,39 @@
 
 void PmergeMe::processSequence(int size, char** sequence)
 {
-	std::vector<int> originalSequence;
+	std::vector<int> vec;
+	std::list<int> lst;
+
 	for (int i = 0; i < size; ++i)
 	{
 		std::string token(sequence[i]);
 		if (token.find_first_not_of("0123456789") != std::string::npos)
 			throw std::runtime_error("Invalid input: " + token);
-		originalSequence.push_back(std::atoi(token.c_str()));
+		vec.push_back(std::atoi(token.c_str()));
+		lst.push_back(std::atoi(token.c_str()));
 	}
-	displaySequence("Before: ", originalSequence);
+	displaySequence("Before: ", vec);
 	clock_t start, end;
-	start = std::clock();
 	size_t threshold = 20; //threshold以下の部分配列に対して挿入ソートが適用
-	vectorMergeInsertionSort(originalSequence, threshold);
-	end = std::clock();
-	displaySequence("After: ", originalSequence);
-
+	std::string msg;
 	std::ostringstream oss;
 	oss << size;
-	std::string msg = "Time to process a range of " + oss.str() + " elements with std::vector: ";
-	displayTime(msg, start, end);
-}
 
-void PmergeMe::displayTime(std::string const& msg, clock_t start, clock_t end)
-{
-	double timeUsed = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1e6;
-	std::cout << msg << timeUsed << " us" << std::endl;
+	start = std::clock();
+	vectorMergeInsertionSort(vec, threshold);
+	end = std::clock();
+
+	displaySequence("After: ", vec);
+
+	msg = "Time to process a range of " + oss.str() + " elements with std::vector: ";
+	displayTime(msg, start, end);
+
+	start = std::clock();
+	listMergeInsertionSort(lst, threshold);
+	end = std::clock();
+
+	msg = "Time to process a range of " + oss.str() + " elements with std::list: ";
+	displayTime(msg, start, end);
 }
 
 void PmergeMe::displaySequence(std::string const& msg, std::vector<int> const& sequence)
@@ -36,6 +43,70 @@ void PmergeMe::displaySequence(std::string const& msg, std::vector<int> const& s
 	for (size_t i = 0; i < sequence.size(); ++i)
 		std::cout << sequence[i] << " ";
 	std::cout << std::endl;
+}
+
+void PmergeMe::displayTime(std::string const& msg, clock_t start, clock_t end)
+{
+	double timeUsed = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1e6;
+	std::cout << msg << timeUsed << " us" << std::endl;
+}
+
+void PmergeMe::listMergeInsertionSort(std::list<int> & sequence, size_t threshold)
+{
+	std::list<int> tmp;
+	listMergeInsertionSortHelper(sequence, tmp, threshold);
+}
+
+void PmergeMe::listMergeInsertionSortHelper(std::list<int> & sequence, std::list<int> & tmp, size_t threshold)
+{
+	if (sequence.size() <= threshold)
+		listInsertionSortRange(sequence);
+	else
+	{
+		// int mid = static_cast<size_t>(sequence.size() / 2);
+		std::list<int> leftHalf(sequence.begin(), std::next(sequence.begin(), std::distance(sequence.begin(), sequence.end()) / 2));
+		std::list<int> rightHalf(std::next(sequence.begin(), std::distance(sequence.begin(), sequence.end()) / 2), sequence.end());
+		listMergeInsertionSortHelper(leftHalf, tmp, threshold);
+		listMergeInsertionSortHelper(rightHalf, tmp, threshold);
+		listMerge(sequence, leftHalf, rightHalf);
+	}
+}
+
+void PmergeMe::listInsertionSortRange(std::list<int> & sequence)
+{
+	for (std::list<int>::iterator it = sequence.begin(); it != sequence.end(); ++it)
+	{
+		int key = *it;
+		std::list<int>::iterator j = std::prev(it);
+		while (j != sequence.end() && *j > key)
+		{
+			std::iter_swap(j, std::next(j));
+			--j;
+		}
+		std::iter_swap(std::next(j), it);
+	}
+}
+
+void PmergeMe::listMerge(std::list<int> & sequence, std::list<int> & leftHalf, std::list<int> & rightHalf)
+{
+	sequence.clear();
+	std::list<int>::iterator leftIt = leftHalf.begin();
+	std::list<int>::iterator rightIt = rightHalf.begin();
+	while (leftIt != leftHalf.end() && rightIt != rightHalf.end())
+	{
+		if (*leftIt <= *rightIt)
+		{
+			sequence.push_back(*leftIt);
+			++leftIt;
+		}
+		else
+		{
+			sequence.push_back(*rightIt);
+			++rightIt;
+		}
+	}
+	sequence.insert(sequence.end(), leftIt, leftHalf.end());
+	sequence.insert(sequence.end(), rightIt, rightHalf.end());
 }
 
 void PmergeMe::vectorMergeInsertionSort(std::vector<int> & sequence, size_t threshold)
