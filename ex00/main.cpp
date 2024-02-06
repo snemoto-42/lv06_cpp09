@@ -7,30 +7,28 @@ int main(int argc, char **argv)
 		std::cerr << "Invalid arg" << std::endl;
 		return 1;
 	}
-	std::string const inputFilename = argv[1];
-	std::string const bitcoinPricesFilename = "data.csv";
-	BitcoinExchange exchange(bitcoinPricesFilename);
+	std::string const& inputFilename = argv[1];
 	std::ifstream inputFile(inputFilename.c_str());
 	if (!inputFile.is_open())
 	{
 		std::cerr << "Error: File '" << inputFilename << "' not found" << std::endl;
 		return 1;
 	}
-
 	std::string line;
 	while (std::getline(inputFile, line))
 	{
 		if (line.find("date | value") != std::string::npos)
 			continue ;
 	}
-
 	std::istringstream iss(line);
-	std::string dateStr;
-	std::string valueStr;
+	std::string dateStr, valueStr;
+	std::getline(iss, dateStr, '|');
+	std::getline(iss >> std::ws, valueStr);
+	std::string const& bitcoinPricesFilename = "data.csv";
 	try
 	{
-		std::string closestDate = exchange.findClosestDate(dateStr);
-		std::map<std::string, double> bitcoinPrices = exchange.readBitcoinPrices();
+		std::map<std::string, double> bitcoinPrices = BitcoinExchange::readBitcoinPrices(bitcoinPricesFilename);
+		std::string closestDate = BitcoinExchange::findClosestDate(dateStr, bitcoinPricesFilename);
 		CompareDates compare(std::atoi(closestDate.c_str()));
 		std::map<std::string, double>::iterator exchangeRate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
 

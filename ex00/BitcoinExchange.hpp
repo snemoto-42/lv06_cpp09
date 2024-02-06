@@ -9,12 +9,6 @@
 #include <sstream>
 #include <map>
 
-// struct BitcoinData
-// {
-// 	std::string date;
-// 	double value;
-// };
-
 class CompareDates
 {
 	public:
@@ -30,15 +24,12 @@ class CompareDates
 class BitcoinExchange
 {
 	public:
-		BitcoinExchange(std::string const&);
-		~BitcoinExchange();
-		BitcoinExchange(BitcoinExchange const&);
-		BitcoinExchange & operator=(BitcoinExchange const&);
-
-		std::map<std::string, double> readBitcoinPrices(void);
-		std::string findClosestDate(std::string const&);	
+		static std::map<std::string, double> readBitcoinPrices(std::string const&);
+		static std::string findClosestDate(std::string const&, std::string const&);	
 
 	private:
-		std::string _bitcoinPricesFilename;
 		BitcoinExchange();
+		~BitcoinExchange();
+		// BitcoinExchange(BitcoinExchange const&);
+		// BitcoinExchange & operator=(BitcoinExchange const&);
 }; 

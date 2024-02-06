@@ -1,39 +1,9 @@
 #include "BitcoinExchange.hpp"
 
-BitcoinExchange::BitcoinExchange()
-{
-	std::cout << GREEN << "BitcoinExchange: " << "Default constructor called" << RESET << std::endl;
-}
-
-BitcoinExchange::BitcoinExchange(std::string const& bitcoinPricesFilename):_bitcoinPricesFilename(bitcoinPricesFilename)
-{
-	std::cout << GREEN << "BitcoinExchange: " << "Constructor with argment called" << RESET << std::endl;
-}
-
-BitcoinExchange::~BitcoinExchange()
-{
-	std::cout << GREEN << "BitcoinExchange: " << "Destructor called" << RESET << std::endl;	
-}
-
-BitcoinExchange::BitcoinExchange(BitcoinExchange const& other)
-{
-	std::cout << GREEN << "BitcoinExchange: " << "Copy constructor called" << RESET << std::endl;
-	*this = other;
-}
-
-BitcoinExchange & BitcoinExchange::operator=(BitcoinExchange const& other)
-{
-	std::cout << GREEN << "BitcoinExchange: " << "Copy assignment operator called" << RESET << std::endl;
-	if (this != &other)
-	{
-	}
-	return (*this);		
-}
-
-std::map<std::string, double> BitcoinExchange::readBitcoinPrices(void)
+std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string const& bitcoinPricesFilename)
 {
 	std::map<std::string, double> bitcoinPrices;
-	std::ifstream file(_bitcoinPricesFilename.c_str());
+	std::ifstream file(bitcoinPricesFilename.c_str());
 	if (!file.is_open())
 	{
 		std::cerr << "Error: Bitcoin prices database not found." << std::endl;
@@ -61,11 +31,36 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(void)
 	return bitcoinPrices;
 }
 
-std::string BitcoinExchange::findClosestDate(std::string const& targetDate)
+std::string BitcoinExchange::findClosestDate(std::string const& targetDate, std::string const& bitcoinPricesFilename)
 {
 	int targetDateTime = std::atoi(targetDate.c_str());
-	std::map<std::string, double> bitcoinPrices = readBitcoinPrices();
+	std::map<std::string, double> bitcoinPrices = readBitcoinPrices(bitcoinPricesFilename);
 	CompareDates compare(targetDateTime);
 	std::map<std::string, double>::iterator closestDate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
 	return closestDate->first;
 }
+
+BitcoinExchange::BitcoinExchange()
+{
+	std::cout << GREEN << "BitcoinExchange: " << "Default constructor called" << RESET << std::endl;
+}
+
+BitcoinExchange::~BitcoinExchange()
+{
+	std::cout << GREEN << "BitcoinExchange: " << "Destructor called" << RESET << std::endl;	
+}
+
+// BitcoinExchange::BitcoinExchange(BitcoinExchange const& other)
+// {
+// 	std::cout << GREEN << "BitcoinExchange: " << "Copy constructor called" << RESET << std::endl;
+// 	*this = other;
+// }
+
+// BitcoinExchange & BitcoinExchange::operator=(BitcoinExchange const& other)
+// {
+// 	std::cout << GREEN << "BitcoinExchange: " << "Copy assignment operator called" << RESET << std::endl;
+// 	if (this != &other)
+// 	{
+// 	}
+// 	return (*this);		
+// }
