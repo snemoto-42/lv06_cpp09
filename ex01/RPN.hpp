@@ -11,9 +11,14 @@
 class RPN
 {
 	public:
-		static int calculateRPN(std::string const&);
+		static double calculateRPN(std::string const&);
 
 	private:
 		static bool isOperator(std::string const&);
-		static int performOperation(int, int, std::string const&);
+		static double performOperation(double, double, std::string const&);
+
+		RPN();
+		~RPN();
+		RPN(RPN const&);
+		RPN & operator=(RPN const&);
 }; 

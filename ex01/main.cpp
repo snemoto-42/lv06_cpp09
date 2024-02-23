@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 	std::string rpnExpression = argv[1];
 	try
 	{
-		int result = RPN::calculateRPN(rpnExpression);
+		double result = RPN::calculateRPN(rpnExpression);
 		std::cout << result << std::endl;
 	}
 	catch (std::exception const& e)
