@@ -28,4 +28,9 @@ class PmergeMe
 		static void vectorMergeInsertionSortHelper(std::vector<int> &, std::vector<int> &, size_t, size_t, size_t);
 		static void vectorInsertionSortRange(std::vector<int> &, size_t, size_t);
 		static void vectorMerge(std::vector<int> &, std::vector<int> &, size_t, size_t, size_t);
+
+		PmergeMe();
+		~PmergeMe();
+		PmergeMe(PmergeMe const&);
+		PmergeMe & operator=(PmergeMe const&);
 };

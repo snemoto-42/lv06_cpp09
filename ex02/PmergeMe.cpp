@@ -165,3 +165,29 @@ void PmergeMe::vectorMerge(std::vector<int> & sequence, std::vector<int> & tmp, 
 	for (size_t l = left; l <= right; ++l)
 		sequence[l] = tmp[l];
 }
+
+PmergeMe::PmergeMe()
+{
+	std::cout << GREEN << "Default constructor called" << RESET << std::endl;
+}
+
+PmergeMe::~PmergeMe()
+{
+	std::cout << GREEN << "Destructor called" << RESET << std::endl;	
+}
+
+PmergeMe::PmergeMe(PmergeMe const& x)
+{
+	std::cout << GREEN << "Copy constructor called" << RESET << std::endl;
+	*this = x;
+}
+
+PmergeMe& PmergeMe::operator=(PmergeMe const& x)
+{
+	std::cout << GREEN << "Copy assignment operator called" << RESET << std::endl;
+	if (this != &x)
+	{
+		*this = x;
+	}
+	return (*this);		
+}
