@@ -30,6 +30,6 @@ class BitcoinExchange
 	private:
 		BitcoinExchange();
 		~BitcoinExchange();
-		// BitcoinExchange(BitcoinExchange const&);
-		// BitcoinExchange & operator=(BitcoinExchange const&);
+		BitcoinExchange(BitcoinExchange const&);
+		BitcoinExchange & operator=(BitcoinExchange const&);
 }; 

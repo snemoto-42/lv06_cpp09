@@ -51,6 +51,7 @@ void PmergeMe::displayTime(std::string const& msg, clock_t start, clock_t end)
 	std::cout << msg << timeUsed << " us" << std::endl;
 }
 
+// for list
 void PmergeMe::listMergeInsertionSort(std::list<int> & sequence, size_t threshold)
 {
 	std::list<int> tmp;
@@ -117,6 +118,7 @@ void PmergeMe::listMerge(std::list<int> & sequence, std::list<int> & leftHalf, s
 	sequence.insert(sequence.end(), rightIt, rightHalf.end());
 }
 
+// for vector
 void PmergeMe::vectorMergeInsertionSort(std::vector<int> & sequence, size_t threshold)
 {
 	std::vector<int> tmp(sequence.size());
@@ -184,18 +186,18 @@ PmergeMe::~PmergeMe()
 	std::cout << GREEN << "Destructor called" << RESET << std::endl;	
 }
 
-PmergeMe::PmergeMe(PmergeMe const& x)
+PmergeMe::PmergeMe(PmergeMe const& other)
 {
 	std::cout << GREEN << "Copy constructor called" << RESET << std::endl;
-	*this = x;
+	*this = other;
 }
 
-PmergeMe& PmergeMe::operator=(PmergeMe const& x)
+PmergeMe& PmergeMe::operator=(PmergeMe const& other)
 {
 	std::cout << GREEN << "Copy assignment operator called" << RESET << std::endl;
-	if (this != &x)
+	if (this != &other)
 	{
-		*this = x;
+		*this = other;
 	}
 	return (*this);		
 }

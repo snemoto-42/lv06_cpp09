@@ -50,17 +50,18 @@ BitcoinExchange::~BitcoinExchange()
 	std::cout << GREEN << "BitcoinExchange: " << "Destructor called" << RESET << std::endl;	
 }
 
-// BitcoinExchange::BitcoinExchange(BitcoinExchange const& other)
-// {
-// 	std::cout << GREEN << "BitcoinExchange: " << "Copy constructor called" << RESET << std::endl;
-// 	*this = other;
-// }
+BitcoinExchange::BitcoinExchange(BitcoinExchange const& other)
+{
+	std::cout << GREEN << "BitcoinExchange: " << "Copy constructor called" << RESET << std::endl;
+	*this = other;
+}
 
-// BitcoinExchange & BitcoinExchange::operator=(BitcoinExchange const& other)
-// {
-// 	std::cout << GREEN << "BitcoinExchange: " << "Copy assignment operator called" << RESET << std::endl;
-// 	if (this != &other)
-// 	{
-// 	}
-// 	return (*this);		
-// }
+BitcoinExchange & BitcoinExchange::operator=(BitcoinExchange const& other)
+{
+	std::cout << GREEN << "BitcoinExchange: " << "Copy assignment operator called" << RESET << std::endl;
+	if (this != &other)
+	{
+		*this = other;
+	}
+	return (*this);		
+}

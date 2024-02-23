@@ -69,18 +69,18 @@ RPN::~RPN()
 	std::cout << GREEN << "Destructor called" << RESET << std::endl;	
 }
 
-RPN::RPN(RPN const& x)
+RPN::RPN(RPN const& other)
 {
 	std::cout << GREEN << "Copy constructor called" << RESET << std::endl;
-	*this = x;
+	*this = other;
 }
 
-RPN& RPN::operator=(RPN const& x)
+RPN& RPN::operator=(RPN const& other)
 {
 	std::cout << GREEN << "Copy assignment operator called" << RESET << std::endl;
-	if (this != &x)
+	if (this != &other)
 	{
-		*this = x;
+		*this = other;
 	}
 	return (*this);		
 }
