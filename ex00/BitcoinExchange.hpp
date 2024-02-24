@@ -27,7 +27,8 @@ class BitcoinExchange
 		static void processInputfile(std::string const&);
 		static std::pair<std::string, double> readInputfile(std::string const&);
 		static std::map<std::string, double> readBitcoinPrices(std::string const&);
-		static std::string findClosestDate(std::string const&, std::string const&);	
+		static std::map<std::string, double>::iterator findClosestDate(std::string const&, std::map<std::string, double> &);
+		static bool invalidDate(std::string const& date);
 
 	private:
 		BitcoinExchange();
