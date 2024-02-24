@@ -201,3 +201,18 @@ PmergeMe& PmergeMe::operator=(PmergeMe const& other)
 	}
 	return (*this);		
 }
+
+// std::vector<int> PmergeMe::generateJacobsthalNumbers(size_t n)
+// {
+// 	;
+// }
+
+// void PmergeMe::insertIntoMainchain(std::list<int> & mainchain, int b)
+// {
+// 	;
+// }
+
+// void PmergeMe::listMergeInsertionSort(std::list<int>& lst)
+// {
+// 	;
+// }
