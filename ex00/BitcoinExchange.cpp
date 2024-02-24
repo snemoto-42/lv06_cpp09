@@ -83,12 +83,13 @@ bool BitcoinExchange::invalidDate(std::string const& date)
 
 std::map<std::string, double>::iterator BitcoinExchange::findClosestDate(std::string const& targetDate, std::map<std::string, double> & bitcoinPrices)
 {
-	//compareクラスを不要にしたい
-	int targetDateTime = std::atoi(targetDate.c_str());
-	if (targetDateTime == 0)
-		throw std::invalid_argument("Error: Invalid date in the Inputfile.");
-	CompareDates compare(targetDateTime);
-	std::map<std::string, double>::iterator closestDate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
+	std::map<std::string, double>::iterator closestDate = bitcoinPrices.lower_bound(targetDate);
+	if (closestDate == bitcoinPrices.begin())
+		return closestDate;
+	if (closestDate == bitcoinPrices.end())
+		std::advance(closestDate, -1);
+	else if (closestDate->first != targetDate)
+		std::advance(closestDate, -1);
 	return closestDate;
 }
 
