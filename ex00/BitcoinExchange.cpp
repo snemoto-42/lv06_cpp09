@@ -8,10 +8,9 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 	{
 		bitcoinPrices = BitcoinExchange::readBitcoinPrices(bitcoinPricesFilename);
 	}
-	catch (std::invalid_argument const& e)
+	catch (std::exception const& e)
 	{
 		std::cerr << e.what() << std::endl;
-		// std::cerr << "Error: Invalid value in the Bitcoin prices database." << std::endl;
 		return ;
 	}
 	// for (std::map<std::string, double>::const_iterator it = bitcoinPrices.begin(); it != bitcoinPrices.end(); ++it)
@@ -35,28 +34,20 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 			inputData = BitcoinExchange::readInputfile(line);
 			// std::cout << "\"" << inputData.first << "\"" << inputData.second << "\"" << std::endl;
 		}
+		catch (std::exception const& e)
+		{
+			std::cerr << e.what() << std::endl;
+			continue ;
+		}
+		std::map<std::string, double>::iterator closestDate;
+		try
+		{
+			closestDate = BitcoinExchange::findClosestDate(inputData.first, bitcoinPrices);
+		}
 		catch (std::invalid_argument const& e)
 		{
 			std::cerr << e.what() << std::endl;
-			// std::cerr << "Error: Invalid value in the Inputfile." << std::endl;
-			continue ;
 		}
-		if (inputData.second < 0)
-		{
-			std::cerr << "Error: not a positive number." << std::endl;
-			continue ;
-		}
-		else if (inputData.second > 1000)
-		{
-			std::cerr << "Error: too large a number." << std::endl;
-			continue ;
-		}
-		if (invalidDate(inputData.first))
-		{
-			std::cerr << "Error: bad input => " << inputData.first << std::endl;
-			continue ;
-		}
-		std::map<std::string, double>::iterator closestDate = BitcoinExchange::findClosestDate(inputData.first, bitcoinPrices);
 		if (closestDate != bitcoinPrices.end())
 		{
 			double result = inputData.second * closestDate->second;
@@ -94,6 +85,8 @@ std::map<std::string, double>::iterator BitcoinExchange::findClosestDate(std::st
 {
 	//compareクラスを不要にしたい
 	int targetDateTime = std::atoi(targetDate.c_str());
+	if (targetDateTime == 0)
+		throw std::invalid_argument("Error: Invalid date in the Inputfile.");
 	CompareDates compare(targetDateTime);
 	std::map<std::string, double>::iterator closestDate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
 	return closestDate;
@@ -101,15 +94,25 @@ std::map<std::string, double>::iterator BitcoinExchange::findClosestDate(std::st
 
 std::pair<std::string, double> BitcoinExchange::readInputfile(std::string const& line)
 {
-	std::pair<std::string, double> inputData;
 	std::istringstream iss(line);
 	std::string dateStr, valueStr;
 	std::string delim = "|";
 	if (!(iss >> dateStr >> delim >> valueStr))
+		throw std::invalid_argument("Error: Invalid format in the Inputfile.");
+	double value = std::atof(valueStr.c_str());
+	if (value == 0 && valueStr != "0")
 		throw std::invalid_argument("Error: Invalid value in the Inputfile.");
-	//throwを返すのか
-	inputData = std::make_pair(dateStr, std::atof(valueStr.c_str()));
-
+	if (std::atof(valueStr.c_str()) < 0)
+		throw std::invalid_argument("Error: not a positive number.");
+	if (std::atof(valueStr.c_str()) > 1000)
+		throw std::invalid_argument("Error: too large a number.");
+	if (invalidDate(dateStr))
+	{
+		std::ostringstream oss;
+		oss << "Error: bad input => " << dateStr;
+		throw std::invalid_argument(oss.str());
+	}
+	std::pair<std::string, double> inputData = std::make_pair(dateStr, value);
 	return inputData;
 }
 
@@ -130,8 +133,10 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string con
 		std::string dateStr, valueStr;
 		std::getline(iss, dateStr, ',');
 		std::getline(iss, valueStr);
-		//throwを返すのか
-		bitcoinPrices.insert(std::make_pair(dateStr, std::atof(valueStr.c_str())));
+		double value = std::atof(valueStr.c_str());
+		if (value == 0 && valueStr != "0")
+			throw std::invalid_argument("Error: Invalid value in the Inputfile.");
+		bitcoinPrices.insert(std::make_pair(dateStr, value));
 	}
 	return bitcoinPrices;
 }
