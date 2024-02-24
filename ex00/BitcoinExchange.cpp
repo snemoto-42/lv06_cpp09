@@ -14,9 +14,7 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 		return ;
 	}
 	// for (std::map<std::string, double>::const_iterator it = bitcoinPrices.begin(); it != bitcoinPrices.end(); ++it)
-	// {
 	// 	std::cout << "\"" << it->first << "\"" << it->second << "\"" << std::endl;
-	// }
 	std::ifstream inputFile(inputFilename.c_str());
 	if (!inputFile.is_open())
 	{
@@ -51,7 +49,7 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 		if (closestDate != bitcoinPrices.end())
 		{
 			double result = inputData.second * closestDate->second;
-			std::cout << inputData.first << " => " << inputData.second << " = " << std::fixed << std::setprecision(2) << result << std::endl;
+			std::cout << inputData.first << " => " << inputData.second << " = " << result << std::endl;
 		}
 		else
 			std::cerr << "Error: Exchange rate not found for date " << inputData.first << std::endl;
@@ -69,8 +67,7 @@ bool BitcoinExchange::invalidDate(std::string const& date)
 		return true;
 	if (month == 2)
 	{
-		//西暦年号が4で割り切れる年をうるう年とする
-		if (year % 4 != 0 && day == 29)
+		if (year % 4 != 0 && day == 29) //西暦が4で割り切れる年を閏年とする
 			return true;
 		else if (day > 29)
 			return true;
@@ -122,9 +119,7 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string con
 	std::map<std::string, double> bitcoinPrices;
 	std::ifstream file(bitcoinPricesFilename.c_str());
 	if (!file.is_open())
-	{
 		throw std::invalid_argument("Error: Bitcoin prices database not found.");
-	}
 	std::string line;
 	while (std::getline(file, line))
 	{
@@ -136,7 +131,13 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string con
 		std::getline(iss, valueStr);
 		double value = std::atof(valueStr.c_str());
 		if (value == 0 && valueStr != "0")
-			throw std::invalid_argument("Error: Invalid value in the Inputfile.");
+			throw std::invalid_argument("Error: Invalid value in the database.");
+		if (std::atof(valueStr.c_str()) < 0)
+			throw std::invalid_argument("Error: not a positive number in the database.");
+		if (std::atof(valueStr.c_str()) > 7800000) //2021-11 highest price
+			throw std::invalid_argument("Error: too large a number in the database.");
+		if (invalidDate(dateStr))
+			throw std::invalid_argument("Error: Invalid date in the database.");
 		bitcoinPrices.insert(std::make_pair(dateStr, value));
 	}
 	return bitcoinPrices;
