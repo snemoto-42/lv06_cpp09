@@ -2,6 +2,12 @@
 
 void BitcoinExchange::processInputfile(std::string const& inputFilename)
 {
+	std::string const& bitcoinPricesFilename = "data.csv";
+	std::map<std::string, double> bitcoinPrices = BitcoinExchange::readBitcoinPrices(bitcoinPricesFilename);
+	// for (std::map<std::string, double>::const_iterator it = bitcoinPrices.begin(); it != bitcoinPrices.end(); ++it)
+	// {
+	// 	std::cout << "\"" << it->first << "\"" << it->second << "\"" << std::endl;
+	// }
 	std::ifstream inputFile(inputFilename.c_str());
 	if (!inputFile.is_open())
 	{
@@ -10,34 +16,42 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 	}
 	std::string line;
 	while (std::getline(inputFile, line))
-	{
+	{	
 		if (line.find("date | value") != std::string::npos)
 			continue ;
+		std::pair<std::string, double> inputData = BitcoinExchange::readInputfile(line);
+		// std::cout << "\"" << inputData.first << "\"" << inputData.second << "\"" << std::endl;
+		std::string closestDate = BitcoinExchange::findClosestDate(inputData.first, bitcoinPricesFilename);
+		CompareDates compare(std::atoi(closestDate.c_str()));
+		std::map<std::string, double>::iterator exchangeRate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
+		if (exchangeRate != bitcoinPrices.end())
+		{
+			double result = inputData.second * exchangeRate->second;
+			std::cout << inputData.first << " => " << inputData.second << " = " << std::fixed << std::setprecision(2) << result << std::endl;
+		}
+		else
+			std::cerr << "Error: Exchange rate not found for date " << inputData.first << std::endl;
 	}
+}
+
+std::pair<std::string, double> BitcoinExchange::readInputfile(std::string const& line)
+{
+	std::pair<std::string, double> inputData;
 	std::istringstream iss(line);
 	std::string dateStr, valueStr;
 	std::getline(iss, dateStr, '|');
-	std::getline(iss >> std::ws, valueStr);
-	std::string const& bitcoinPricesFilename = "data.csv";
+	dateStr.erase(std::remove_if(dateStr.begin(), dateStr.end(), isspace), dateStr.end());
+	std::getline(iss, valueStr);
 	try
 	{
-		std::map<std::string, double> bitcoinPrices = BitcoinExchange::readBitcoinPrices(bitcoinPricesFilename);
-		std::string closestDate = BitcoinExchange::findClosestDate(dateStr, bitcoinPricesFilename);
-		CompareDates compare(std::atoi(closestDate.c_str()));
-		std::map<std::string, double>::iterator exchangeRate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
-
-		if (exchangeRate != bitcoinPrices.end())
-		{
-			double result = std::atof(valueStr.c_str()) * exchangeRate->second;
-			std::cout << " => " << valueStr << " = " << std::fixed << std::setprecision(2) << result << std::endl;
-		}
-		else
-			std::cerr << "Error: Exchange rate not found for date " << dateStr << std::endl;
+		inputData = std::make_pair(dateStr, std::atof(valueStr.c_str()));
 	}
-	catch(const std::exception& e)
+	catch (std::invalid_argument const& e)
 	{
-		std::cerr << e.what() << '\n';
+		std::cerr << "Error: Invalid value in the Inputfile." << std::endl;
+		// error handling
 	}
+	return inputData;
 }
 
 std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string const& bitcoinPricesFilename)
@@ -52,12 +66,12 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string con
 	std::string line;
 	while (std::getline(file, line))
 	{
-		if (line.find("data | value") != std::string::npos)
+		if (line.find("date,exchange_rate") != std::string::npos)
 			continue ;
 		std::istringstream iss(line);
-		std::string dateStr;
-		std::string valueStr;
-		iss >> dateStr >> valueStr;
+		std::string dateStr, valueStr;
+		std::getline(iss, dateStr, ',');
+		std::getline(iss, valueStr);
 		try
 		{
 			bitcoinPrices.insert(std::make_pair(dateStr, std::atof(valueStr.c_str())));
