@@ -27,17 +27,18 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 	std::string line;
 	while (std::getline(inputFile, line))
 	{
-		//完全一致でなくても読み飛ばす？
-		if (line.find("date | value") != std::string::npos)
+		if (line.find_first_not_of(" |-.0123456789") != std::string::npos)
 			continue ;
 		std::pair<std::string, double> inputData;
 		try
 		{
 			inputData = BitcoinExchange::readInputfile(line);
+			// std::cout << "\"" << inputData.first << "\"" << inputData.second << "\"" << std::endl;
 		}
 		catch (std::invalid_argument const& e)
 		{
-			std::cerr << "Error: Invalid value in the Inputfile." << std::endl;
+			std::cerr << e.what() << std::endl;
+			// std::cerr << "Error: Invalid value in the Inputfile." << std::endl;
 			continue ;
 		}
 		if (inputData.second < 0)
@@ -55,12 +56,11 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 			std::cerr << "Error: bad input => " << inputData.first << std::endl;
 			continue ;
 		}
-		// std::cout << "\"" << inputData.first << "\"" << inputData.second << "\"" << std::endl;
 		std::map<std::string, double>::iterator closestDate = BitcoinExchange::findClosestDate(inputData.first, bitcoinPrices);
 		if (closestDate != bitcoinPrices.end())
 		{
 			double result = inputData.second * closestDate->second;
-			std::cout << inputData.first << " => " << inputData.second << " = " << std::fixed << std::setprecision(1) << result << std::endl;
+			std::cout << inputData.first << " => " << inputData.second << " = " << std::fixed << std::setprecision(2) << result << std::endl;
 		}
 		else
 			std::cerr << "Error: Exchange rate not found for date " << inputData.first << std::endl;
@@ -76,7 +76,17 @@ bool BitcoinExchange::invalidDate(std::string const& date)
 		return true;
 	if (year < 0 || month < 1 || month > 12 || day < 1 || day > 31)
 		return true;
-	// 月ごとの日数をチェックする追加のロジック
+	if (month == 2)
+	{
+		//西暦年号が4で割り切れる年をうるう年とする
+		if (year % 4 != 0 && day == 29)
+			return true;
+		else if (day > 29)
+			return true;
+	}
+	else if (month == 4 || month == 6 || month == 9 || month == 11)
+		if (day == 31)
+			return true;
 	return false;
 }
 
@@ -94,11 +104,9 @@ std::pair<std::string, double> BitcoinExchange::readInputfile(std::string const&
 	std::pair<std::string, double> inputData;
 	std::istringstream iss(line);
 	std::string dateStr, valueStr;
-	//データ形式が正しくない
-	std::getline(iss, dateStr, '|');
-	dateStr.erase(std::remove_if(dateStr.begin(), dateStr.end(), isspace), dateStr.end());
-	std::getline(iss, valueStr);
-
+	std::string delim = "|";
+	if (!(iss >> dateStr >> delim >> valueStr))
+		throw std::invalid_argument("Error: Invalid value in the Inputfile.");
 	//throwを返すのか
 	inputData = std::make_pair(dateStr, std::atof(valueStr.c_str()));
 
@@ -116,15 +124,12 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string con
 	std::string line;
 	while (std::getline(file, line))
 	{
-		//完全一致でなくても読み飛ばす？
-		if (line.find("date,exchange_rate") != std::string::npos)
+		if (line.find_first_not_of("-.,0123456789") != std::string::npos)
 			continue ;
 		std::istringstream iss(line);
 		std::string dateStr, valueStr;
-		//データ形式が正しくない
 		std::getline(iss, dateStr, ',');
 		std::getline(iss, valueStr);
-
 		//throwを返すのか
 		bitcoinPrices.insert(std::make_pair(dateStr, std::atof(valueStr.c_str())));
 	}
