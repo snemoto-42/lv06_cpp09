@@ -3,7 +3,17 @@
 void BitcoinExchange::processInputfile(std::string const& inputFilename)
 {
 	std::string const& bitcoinPricesFilename = "data.csv";
-	std::map<std::string, double> bitcoinPrices = BitcoinExchange::readBitcoinPrices(bitcoinPricesFilename);
+	std::map<std::string, double> bitcoinPrices;
+	try
+	{
+		bitcoinPrices = BitcoinExchange::readBitcoinPrices(bitcoinPricesFilename);
+	}
+	catch (std::invalid_argument const& e)
+	{
+		std::cerr << e.what() << std::endl;
+		// std::cerr << "Error: Invalid value in the Bitcoin prices database." << std::endl;
+		return ;
+	}
 	// for (std::map<std::string, double>::const_iterator it = bitcoinPrices.begin(); it != bitcoinPrices.end(); ++it)
 	// {
 	// 	std::cout << "\"" << it->first << "\"" << it->second << "\"" << std::endl;
@@ -12,11 +22,12 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 	if (!inputFile.is_open())
 	{
 		std::cerr << "Error: File '" << inputFilename << "' not found" << std::endl;
-		// error handling
+		return ;
 	}
 	std::string line;
 	while (std::getline(inputFile, line))
-	{	
+	{
+		//完全一致でなくても読み飛ばす？
 		if (line.find("date | value") != std::string::npos)
 			continue ;
 		std::pair<std::string, double> inputData;
@@ -45,7 +56,6 @@ void BitcoinExchange::processInputfile(std::string const& inputFilename)
 			continue ;
 		}
 		// std::cout << "\"" << inputData.first << "\"" << inputData.second << "\"" << std::endl;
-
 		std::map<std::string, double>::iterator closestDate = BitcoinExchange::findClosestDate(inputData.first, bitcoinPrices);
 		if (closestDate != bitcoinPrices.end())
 		{
@@ -72,6 +82,7 @@ bool BitcoinExchange::invalidDate(std::string const& date)
 
 std::map<std::string, double>::iterator BitcoinExchange::findClosestDate(std::string const& targetDate, std::map<std::string, double> & bitcoinPrices)
 {
+	//compareクラスを不要にしたい
 	int targetDateTime = std::atoi(targetDate.c_str());
 	CompareDates compare(targetDateTime);
 	std::map<std::string, double>::iterator closestDate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
@@ -83,10 +94,14 @@ std::pair<std::string, double> BitcoinExchange::readInputfile(std::string const&
 	std::pair<std::string, double> inputData;
 	std::istringstream iss(line);
 	std::string dateStr, valueStr;
+	//データ形式が正しくない
 	std::getline(iss, dateStr, '|');
 	dateStr.erase(std::remove_if(dateStr.begin(), dateStr.end(), isspace), dateStr.end());
 	std::getline(iss, valueStr);
+
+	//throwを返すのか
 	inputData = std::make_pair(dateStr, std::atof(valueStr.c_str()));
+
 	return inputData;
 }
 
@@ -96,27 +111,22 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string con
 	std::ifstream file(bitcoinPricesFilename.c_str());
 	if (!file.is_open())
 	{
-		std::cerr << "Error: Bitcoin prices database not found." << std::endl;
-		// error handling
+		throw std::invalid_argument("Error: Bitcoin prices database not found.");
 	}
 	std::string line;
 	while (std::getline(file, line))
 	{
+		//完全一致でなくても読み飛ばす？
 		if (line.find("date,exchange_rate") != std::string::npos)
 			continue ;
 		std::istringstream iss(line);
 		std::string dateStr, valueStr;
+		//データ形式が正しくない
 		std::getline(iss, dateStr, ',');
 		std::getline(iss, valueStr);
-		try
-		{
-			bitcoinPrices.insert(std::make_pair(dateStr, std::atof(valueStr.c_str())));
-		}
-		catch (std::invalid_argument const& e)
-		{
-			std::cerr << "Error: Invalid value in the Bitcoin prices database." << std::endl;
-			// error handling
-		}
+
+		//throwを返すのか
+		bitcoinPrices.insert(std::make_pair(dateStr, std::atof(valueStr.c_str())));
 	}
 	return bitcoinPrices;
 }
