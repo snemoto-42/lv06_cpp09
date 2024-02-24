@@ -1,5 +1,45 @@
 #include "BitcoinExchange.hpp"
 
+void BitcoinExchange::processInputfile(std::string const& inputFilename)
+{
+	std::ifstream inputFile(inputFilename.c_str());
+	if (!inputFile.is_open())
+	{
+		std::cerr << "Error: File '" << inputFilename << "' not found" << std::endl;
+		// error handling
+	}
+	std::string line;
+	while (std::getline(inputFile, line))
+	{
+		if (line.find("date | value") != std::string::npos)
+			continue ;
+	}
+	std::istringstream iss(line);
+	std::string dateStr, valueStr;
+	std::getline(iss, dateStr, '|');
+	std::getline(iss >> std::ws, valueStr);
+	std::string const& bitcoinPricesFilename = "data.csv";
+	try
+	{
+		std::map<std::string, double> bitcoinPrices = BitcoinExchange::readBitcoinPrices(bitcoinPricesFilename);
+		std::string closestDate = BitcoinExchange::findClosestDate(dateStr, bitcoinPricesFilename);
+		CompareDates compare(std::atoi(closestDate.c_str()));
+		std::map<std::string, double>::iterator exchangeRate = std::min_element(bitcoinPrices.begin(), bitcoinPrices.end(), compare);
+
+		if (exchangeRate != bitcoinPrices.end())
+		{
+			double result = std::atof(valueStr.c_str()) * exchangeRate->second;
+			std::cout << " => " << valueStr << " = " << std::fixed << std::setprecision(2) << result << std::endl;
+		}
+		else
+			std::cerr << "Error: Exchange rate not found for date " << dateStr << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+}
+
 std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string const& bitcoinPricesFilename)
 {
 	std::map<std::string, double> bitcoinPrices;
@@ -7,7 +47,7 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string con
 	if (!file.is_open())
 	{
 		std::cerr << "Error: Bitcoin prices database not found." << std::endl;
-		std::exit(1);
+		// error handling
 	}
 	std::string line;
 	while (std::getline(file, line))
@@ -25,7 +65,7 @@ std::map<std::string, double> BitcoinExchange::readBitcoinPrices(std::string con
 		catch (std::invalid_argument const& e)
 		{
 			std::cerr << "Error: Invalid value in the Bitcoin prices database." << std::endl;
-			std::exit(1);
+			// error handling
 		}
 	}
 	return bitcoinPrices;

@@ -42,9 +42,7 @@ re:		fclean all
 
 bonus:	all
 
-do:		re
-		./${NAME}
-		${RMD} $(OBJDIR)
-		${RM} ${NAME}
+do:		
+		./test.sh
 
 .PHONY: all clean fclean re bonus do

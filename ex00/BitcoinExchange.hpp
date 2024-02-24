@@ -24,6 +24,7 @@ class CompareDates
 class BitcoinExchange
 {
 	public:
+		static void processInputfile(std::string const&);
 		static std::map<std::string, double> readBitcoinPrices(std::string const&);
 		static std::string findClosestDate(std::string const&, std::string const&);	
 
