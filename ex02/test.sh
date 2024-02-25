@@ -13,6 +13,6 @@ echo ------------ error test --------------
 
 # ./PmergeMe `shuf -i 1-100000 -n 3000 | tr "\n" " "`
 # For OSX USER:
-# ./PmergeMe `jot -r 3000 1 100000 | tr '\n' ' '`
+./PmergeMe `jot -r 3000 1 100000 | tr '\n' ' '`
 
 make fclean
