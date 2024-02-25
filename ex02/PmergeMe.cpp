@@ -64,7 +64,6 @@ void PmergeMe::listMergeInsertionSortHelper(std::list<int> & sequence, std::list
 		listInsertionSortRange(sequence);
 	else
 	{
-		// int mid = static_cast<size_t>(sequence.size() / 2);
 		std::list<int>::iterator half = sequence.begin();
 		std::advance(half, std::distance(sequence.begin(), sequence.end()) / 2); //std::next()
 		std::list<int> leftHalf(sequence.begin(), half);
@@ -84,7 +83,6 @@ void PmergeMe::listInsertionSortRange(std::list<int> & sequence)
 		--j; //std::prev()
 		while (j != sequence.end() && *j > key)
 		{
-			// 
 			std::list<int>::iterator k = j;
 			++k; //std::next()
 			std::iter_swap(j, k);
