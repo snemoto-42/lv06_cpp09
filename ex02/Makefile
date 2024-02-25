@@ -11,8 +11,7 @@ DEPENDS = $(OBJS:.o=.d)
 CXX			= 	c++
 CXXFLAGS	= 	-MMD -MP \
 				-Wall -Wextra -Werror \
-				-std=c++98 -pedantic \
-				-Wconversion
+				-std=c++98 -pedantic
 RMD			= 	rm -rf
 
 # **************************************************************************** #

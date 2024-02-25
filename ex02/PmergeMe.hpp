@@ -19,11 +19,13 @@ class PmergeMe
 		static void displaySequence(std::string const&, std::vector<int> const&);
 		static void displayTime(std::string const&, clock_t, clock_t);
 
-		static void listInsertIntoMainchain(std::list<int> & mainchain, std::list<int>::iterator & b);
-		static void listMergeInsertionSort(std::list<int>& lst);
+		static std::vector<size_t> generateJacobsthalNumbers(size_t n);
 
 		static void vectorInsertIntoMainchain(std::vector<int> & mainchain, std::vector<int>::iterator & b);
 		static void vectorMergeInsertionSort(std::vector<int>& lst);
+
+		static void listInsertIntoMainchain(std::list<int> & mainchain, std::list<int>::iterator & b);
+		static void listMergeInsertionSort(std::list<int>& lst);
 
 		// static void listMergeInsertionSort(std::list<int> &, size_t);
 		// static void listMergeInsertionSortHelper(std::list<int> &, std::list<int> &, size_t);

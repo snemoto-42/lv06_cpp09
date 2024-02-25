@@ -54,57 +54,13 @@ void PmergeMe::displayTime(std::string const& msg, clock_t start, clock_t end)
 	std::cout << msg << timeUsed << " us" << std::endl;
 }
 
-// std::vector<int> PmergeMe::generateJacobsthalNumbers(size_t n)
-// {
-// 	;
-// }
-
-// mainchainにbを挿入する
-void PmergeMe::listInsertIntoMainchain(std::list<int> & mainchain, std::list<int>::iterator & b)
+std::vector<size_t> PmergeMe::generateJacobsthalNumbers(size_t n)
 {
-	for (std::list<int>::iterator it = mainchain.begin(); it != mainchain.end(); ++it)
-	{
-		if (*it > *b)
-		{
-			mainchain.insert(it, *b);
-			return ;
-		}
-	}
-	mainchain.push_back(*b);
-}
-
-void PmergeMe::listMergeInsertionSort(std::list<int>& lst)
-{
-	if (lst.size() < 2)
-		return ;
-	// make pair
-	std::list<int> mainchain, bElements;
-	std::list<int>::iterator it = lst.begin();
-	while (it != lst.end())
-	{
-		int a = *it;
-		++it;
-		if (it != lst.end())
-		{
-			int b = *it;
-			++it;
-			if (a > b)
-				std::swap(a, b);
-			mainchain.push_back(a);
-			bElements.push_back(b);
-		}
-		else
-		{
-			// 奇数の場合、ペアにならない最後の要素はbに追加
-			bElements.push_back(a);
-		}
-	}
-	for (std::list<int>::iterator it = bElements.begin(); it != bElements.end(); ++it)
-	{
-		std::list<int>::iterator b = std::find(lst.begin(), lst.end(), *it);
-		listInsertIntoMainchain(mainchain, b);
-	}
-	lst = mainchain;
+	std::vector<size_t> jNumbers(n + 1, 0);
+	jNumbers[1] = 1;
+	for (size_t i = 2; i <= n; ++i)
+		jNumbers[i] = jNumbers[i - 1] + 2 * jNumbers[i - 2];
+	return jNumbers;
 }
 
 void PmergeMe::vectorInsertIntoMainchain(std::vector<int> & mainchain, std::vector<int>::iterator & b)
@@ -124,7 +80,6 @@ void PmergeMe::vectorMergeInsertionSort(std::vector<int>& lst)
 {
 	if (lst.size() < 2)
 		return ;
-	// make pair
 	std::vector<int> mainchain, bElements;
 	std::vector<int>::iterator it = lst.begin();
 	while (it != lst.end())
@@ -141,16 +96,78 @@ void PmergeMe::vectorMergeInsertionSort(std::vector<int>& lst)
 			bElements.push_back(b);
 		}
 		else
+			bElements.push_back(a); //奇数の場合、ペアにならない最後の要素はbに追加
+	}
+	std::vector<size_t> jNumbers = generateJacobsthalNumbers(lst.size());
+	for (size_t i = 0; i < lst.size(); ++i)
+	{
+		size_t j = jNumbers[i];
+		if (j < bElements.size())
 		{
-			// 奇数の場合、ペアにならない最後の要素はbに追加
-			bElements.push_back(a);
+			std::vector<int>::iterator b = lst.begin();
+			std::advance(b, j);
+			vectorInsertIntoMainchain(mainchain, b);
 		}
 	}
-	for (std::vector<int>::iterator it = bElements.begin(); it != bElements.end(); ++it)
+	// for (std::vector<int>::iterator it = bElements.begin(); it != bElements.end(); ++it)
+	// {
+	// 	std::vector<int>::iterator b = std::find(lst.begin(), lst.end(), *it);
+	// 	vectorInsertIntoMainchain(mainchain, b);
+	// }
+	lst = mainchain;
+}
+
+void PmergeMe::listInsertIntoMainchain(std::list<int> & mainchain, std::list<int>::iterator & b)
+{
+	for (std::list<int>::iterator it = mainchain.begin(); it != mainchain.end(); ++it)
 	{
-		std::vector<int>::iterator b = std::find(lst.begin(), lst.end(), *it);
-		vectorInsertIntoMainchain(mainchain, b);
+		if (*it > *b)
+		{
+			mainchain.insert(it, *b);
+			return ;
+		}
 	}
+	mainchain.push_back(*b);
+}
+
+void PmergeMe::listMergeInsertionSort(std::list<int>& lst)
+{
+	if (lst.size() < 2)
+		return ;
+	std::list<int> mainchain, bElements;
+	std::list<int>::iterator it = lst.begin();
+	while (it != lst.end())
+	{
+		int a = *it;
+		++it;
+		if (it != lst.end())
+		{
+			int b = *it;
+			++it;
+			if (a > b)
+				std::swap(a, b);
+			mainchain.push_back(a);
+			bElements.push_back(b);
+		}
+		else
+			bElements.push_back(a); //奇数の場合、ペアにならない最後の要素はbに追加
+	}
+	std::vector<size_t> jNumbers = generateJacobsthalNumbers(lst.size());
+	for (size_t i = 0; i < lst.size(); ++i)
+	{
+		size_t j = jNumbers[i];
+		if (j < bElements.size())
+		{
+			std::list<int>::iterator b = lst.begin();
+			std::advance(b, j);
+			listInsertIntoMainchain(mainchain, b);
+		}
+	}
+	// for (std::list<int>::iterator it = bElements.begin(); it != bElements.end(); ++it)
+	// {
+	// 	std::list<int>::iterator b = std::find(lst.begin(), lst.end(), *it);
+	// 	listInsertIntoMainchain(mainchain, b);
+	// }
 	lst = mainchain;
 }
 
